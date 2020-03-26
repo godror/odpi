@@ -1800,9 +1800,12 @@ static int dpiOci__loadLib(dpiError *error)
                     sizeof(loadError));
 #else
         dpiOciLibHandle = dlopen(libName, RTLD_LAZY);
-        if (!dpiOciLibHandle && i == 0) {
+        if (dpiOciLibHandle) {
+            dpiDebug__print("dlopen(%s): OK\n", libName);
+        } else {
             strncpy(loadError, dlerror(), sizeof(loadError) - 1);
             loadError[sizeof(loadError) - 1] = '\0';
+            dpiDebug__print("dlopen(%s): %s\n", libName, loadError);
         }
 #endif
 
@@ -1821,6 +1824,13 @@ static int dpiOci__loadLib(dpiError *error)
                 (void) sprintf(oracleHomeLibName, "%s/lib/%s", oracleHome,
                         dpiOciLibNames[0]);
                 dpiOciLibHandle = dlopen(oracleHomeLibName, RTLD_LAZY);
+                if (dpiOciLibHandle) {
+                    dpiDebug__print("dlopen(%s): OK\n", oracleHomeLibName);
+                } else {
+                    strncpy(loadError, dlerror(), sizeof(loadError) - 1);
+                    loadError[sizeof(loadError) - 1] = '\0';
+                    dpiDebug__print("dlopen(%s): %s\n", oracleHomeLibName, loadError);
+                }
                 free(oracleHomeLibName);
             }
         }
